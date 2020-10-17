@@ -1,6 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from entries import get_all_entries, get_single_entry
+from entries import get_all_entries, get_single_entry, entries_q, delete_entry
+from moods import get_all_moods, get_single_mood, delete_mood
 
 # Here's a class. It inherits from another class.
 class HandleRequests(BaseHTTPRequestHandler):
@@ -61,6 +62,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
+            elif resource == "moods":
+                if id is not None:
+                    response = f"{get_single_mood(id)}"
+                else:
+                    response = f"{get_all_moods()}"
 
         # Response from parse_url() is a tuple with 3
         # items in it, which means the request was for
@@ -71,10 +77,8 @@ class HandleRequests(BaseHTTPRequestHandler):
             # Is the resource `customers` and was there a
             # query parameter that specified the customer
             # email as a filtering value?
-            if key == "email" and resource == "customers":
-                response = get_customers_by_email(value)
-            elif key == "location_id" and resource == "animals":
-                response = get_animals_by_location(value)
+            if key == "q" and resource == "entries":
+                response = entries_q(value)
 
         self.wfile.write(response.encode())
 
@@ -121,7 +125,6 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Delete a single animal from the list
         if resource == "animals":
             update_animal(id, post_body)
         elif resource == "locations":
@@ -142,14 +145,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         (resource, id) = self.parse_url(self.path)
 
         # Delete a single animal from the list
-        if resource == "animals":
-            delete_animal(id)
-        elif resource == "locations":
-            delete_location(id)
-        elif resource == "employees":
-            delete_employee(id)
-        elif resource == "customers":
-            delete_customer(id)
+        if resource == "entries":
+            delete_entry(id)
+        elif resource == "moods":
+            delete_mood(id)
 
         # Encode the new animal and send in response
         self.wfile.write("".encode())
