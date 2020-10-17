@@ -1,0 +1,10 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "Daily Journal",
+      "database": "${workspaceFolder:daily-journal-server}/db/dailyjournal.db"
+    }
+  ]
+}
