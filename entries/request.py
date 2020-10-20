@@ -79,7 +79,7 @@ def entries_q(searchterm):
             e.moodId
         from Entries e
         WHERE e.entry LIKE ?
-        """, ( searchterm, ))
+        """, ( '%'+searchterm+'%', ))
 
         entries = []
         dataset = db_cursor.fetchall()
@@ -95,7 +95,7 @@ def delete_entry(id):
     conn.row_factory = sqlite3.Row
     db_cursor = conn.cursor()
   
-  db_cursor.execute("""
-    DELETE FROM entries e
-    WHERE e.id = ?
-  """, ( id, ))
+    db_cursor.execute("""
+      DELETE FROM entries
+      WHERE id = ?
+      """, ( id, ))
