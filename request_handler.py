@@ -5,6 +5,7 @@ from moods import get_all_moods, get_single_mood, delete_mood
 
 # Here's a class. It inherits from another class.
 class HandleRequests(BaseHTTPRequestHandler):
+
     def parse_url(self, path):
         path_params = path.split("/")
         resource = path_params[1]
@@ -39,6 +40,13 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
     # Here's a method on the class that overrides the parent's method.
@@ -144,7 +152,6 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Delete a single animal from the list
         if resource == "entries":
             delete_entry(id)
         elif resource == "moods":
