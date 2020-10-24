@@ -24,4 +24,4 @@ INSERT INTO moods VALUES(4, "Ok");
 
 DELETE FROM entries WHERE ID = 1
 
-SELECT * FROM entries
+SELECT * FROM moods
