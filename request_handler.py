@@ -1,3 +1,4 @@
+from entries.request import update_entry
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from entries import get_all_entries, get_single_entry, entries_q, delete_entry, create_journal_entry
@@ -105,7 +106,6 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any PUT request.
     def do_PUT(self):
-        self._set_headers(204)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
@@ -113,7 +113,16 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Encode the new animal and send in response
+        success = False
+
+        if resource == "entries":
+            success = update_entry(id, post_body)
+
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
         self.wfile.write("".encode())
 
     def do_DELETE(self):
