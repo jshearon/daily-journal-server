@@ -12,6 +12,19 @@ CREATE TABLE moods (
   `label` TEXT NOT NULL
 );
 
+CREATE TABLE tags (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `name` TEXT NOT NULL
+);
+
+CREATE TABLE entry_tag (
+  `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `entry_id` INTEGER NOT NULL,
+  `tag_id` INTEGER NOT NULL,
+  FOREIGN KEY(`entry_id`) REFERENCES `entries`(`id`),
+  FOREIGN KEY(`tag_id`) REFERENCES `tags`(`id`)
+);
+
 INSERT INTO entries VALUES (1, "1235", "123", 1598458543321, 1);
 INSERT INTO entries VALUES (2, "abc", "123", 1598458548239, 2);
 INSERT INTO entries VALUES (3, "Delete", "Now Deleting", 1598458559152, 1);
@@ -22,6 +35,11 @@ INSERT INTO moods VALUES(2, "Sad");
 INSERT INTO moods VALUES(3, "Angry");
 INSERT INTO moods VALUES(4, "Ok");
 
+INSERT INTO tags VALUES(1, "Tag1");
+INSERT INTO tags VALUES(2, "Tag2");
+INSERT INTO tags VALUES(3, "Tag3");
+INSERT INTO tags VALUES(4, "Tag4");
+
 DELETE FROM entries WHERE ID = 1
 
-SELECT * FROM moods
+SELECT * FROM entry_tag

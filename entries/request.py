@@ -2,16 +2,14 @@ import sqlite3
 import json
 from models import Entry
 from models import Mood
+from models import Tag
 
 def get_all_entries():
-    # Open a connection to the database
     with sqlite3.connect("./db/dailyjournal.db") as conn:
 
-        # Just use these. It's a Black Box.
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
-        # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
             a.id,
@@ -21,30 +19,37 @@ def get_all_entries():
             a.moodId,
             m.label mood_label
         FROM entries a
-        JOIN moods m
-        ON a.moodId = m.id
+        JOIN moods m ON a.moodId = m.id
         """)
 
-        # Initialize an empty list to hold all animal representations
         entries = []
 
-        # Convert rows of data into a Python list
         dataset = db_cursor.fetchall()
 
-        # Iterate list of data returned from database
         for row in dataset:
-
-            # Create an animal instance from the current row.
-            # Note that the database fields are specified in
-            # exact order of the parameters defined in the
-            # Animal class above.
             entry = Entry(row['id'], row['concept'], row['entry'],
                             row['date'], row['moodId'])
             mood = Mood(row['moodId'], row['mood_label'])
             entry.mood = mood.__dict__
             entries.append(entry.__dict__)
 
-    # Use `json` package to properly serialize list as JSON
+            db_cursor.execute("""
+              SELECT 
+              t.id,
+              t.name, 
+              e.entry_id
+              FROM entry_tag e
+              JOIN tags t ON t.id = e.tag_id
+              WHERE e.entry_id = ?
+              """, ( row['id'], ))
+
+            tagset = db_cursor.fetchall()
+            tags = []
+            for tag in tagset:
+              each_tag = Tag(tag['id'], tag['name'])
+              tags.append(each_tag.__dict__)
+            entry.tags = tags
+
     return json.dumps(entries)
 
 def get_single_entry(id):
@@ -109,6 +114,15 @@ def create_journal_entry(new_entry):
 
     id = db_cursor.lastrowid
     new_entry['id'] = id
+
+    if new_entry['tags']:
+      for tag in new_entry['tags']:
+        db_cursor.execute("""
+              INSERT INTO entry_tag 
+                (entry_id, tag_id) 
+              VALUES (?, ?)
+        """, ( id, tag, ))
+
     return json.dumps(new_entry)
 
 def update_entry(id, new_entry):
